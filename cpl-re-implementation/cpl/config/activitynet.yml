@@ -1,0 +1,44 @@
+train:
+  # 模型保存位置
+  model_saved_path: checkpoints/activitynet/
+  # batch_size
+  batch_size: 32
+  # 迭代次数
+  max_epoch: 10
+  # 随机种子
+  seed: 2023
+dataset:
+  # 数据集处理类类名
+  dataset: ActivityNet
+  # 文本特征文件位置
+  vocab_path: data/activitynet/glove.pkl
+  # 高频词前k个，其他的词都算是未知的词
+  vocab_size: 8000
+  # 训练集
+  train_data: data/activitynet/train_data.json
+  # 测试集
+  test_data: data/activitynet/test_data.json
+  # 统一长度后视频序列长度
+  max_num_frames: 200
+  # 统一长度后词序列长度
+  max_num_words: 20
+  # 视频向量维度
+  frame_dim: 500
+  # 词向量维度
+  word_dim: 300
+model:
+  # 要加载的模型的类名
+  name: CPL
+  # 模型配置信息
+  config:
+    # [映射层]视频和文本映射到同一空间后，向量的维度
+    mapping:
+      hidden_size: 256
+    # [交互层] transformer部分的超参数
+    interaction: xx
+    # [预测层]
+    prediction:
+      "num_props": 8
+    # [工具层]
+    utils:
+      pass
