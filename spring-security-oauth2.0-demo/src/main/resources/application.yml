@@ -1,0 +1,14 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          github:
+            client-id: b3c7d668824ccd0c9d43
+            client-secret: b5383286b50055219827d375b14ede65f8b1dc14
+            # 这个是要发送给github的参数，必须和github配置相同
+            # 当前授权码发放成功后的重定向地址，需要与之前配置保持一致
+            redirect-uri: http://localhost:8080/callback
+# 默认情况下，spring-security仅支持
+# 我们自己的需要通过 Provider 属性注册进去
+# 默认支持的在 CommonOAuth2Provider 有 FACEBOOK GITHUB GOOGLE OKTA
