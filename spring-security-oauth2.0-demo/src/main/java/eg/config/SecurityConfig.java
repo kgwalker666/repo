@@ -12,7 +12,7 @@ public class SecurityConfig {
         // 所有页面都要认证
         http.authorizeHttpRequests().anyRequest().authenticated();
         // 采用oauth2.0认证
-        http.oauth2Login();
+        http.oauth2Login().loginProcessingUrl("/callback");
         return http.build();
     }
 }
