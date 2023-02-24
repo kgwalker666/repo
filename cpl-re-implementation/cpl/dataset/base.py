@@ -13,6 +13,9 @@ class BaseDataset(Dataset):
         # word->feature
         self.vocab = vocab
 
+        # 保存配置
+        self.configs = configs
+
         # 加载注解文件
         self.ori_data = load_json(data_path)
 
@@ -51,11 +54,12 @@ class BaseDataset(Dataset):
         return len(self.ori_data)
 
     def __getitem__(self, index):  # 给定index，获取其对应的数据
-        vid, duration, timestamps, sentence = self.data[index]
+        vid, duration, timestamps, sentence = self.ori_data[index]
         duration = float(duration)
 
         weights = []  # Probabilities to be masked
         words = []
+        # TODO 不在keep_vocab的词会被直接丢弃
         for word, tag in nltk.pos_tag(nltk.tokenize.word_tokenize(sentence)):
             word = word.lower()
             if word in self.keep_vocab:
@@ -69,9 +73,7 @@ class BaseDataset(Dataset):
                     weights.append(1)
                 words.append(word)
         words_id = [self.keep_vocab[w] for w in words]
-        words_feat = [
-            self.vocab['id2vec'][self.vocab['w2id'][words[0]]].astype(np.float32)]  # placeholder for the start token
-        words_feat.extend([self.vocab['id2vec'][self.vocab['w2id'][w]].astype(np.float32) for w in words])
+        words_feat = [self.vocab['id2vec'][self.vocab['w2id'][w]].astype(np.float32) for w in words]
         frames_feat = self._sample_frame_features(self._load_frame_features(vid))
 
         return {
@@ -83,7 +85,7 @@ class BaseDataset(Dataset):
         }
 
     def _sample_frame_features(self, frames_feat):  # (889, 500) -> (200, 500)
-        num_clips = self.num_clips
+        num_clips = self.configs['max_num_frames']
         keep_idx = np.arange(0, num_clips + 1) / num_clips * len(frames_feat)
         keep_idx = np.round(keep_idx).astype(np.int64)
         keep_idx[keep_idx >= len(frames_feat)] = len(frames_feat) - 1
@@ -120,7 +122,7 @@ def build_collate_data(max_num_frames, max_num_words, frame_dim, word_dim):
             words_len.append(min(len(sample['words_id']), max_num_words))
 
         frames_feat = np.zeros([bsz, max_num_frames, frame_dim]).astype(np.float32)
-        words_feat = np.zeros([bsz, max(words_len) + 1, word_dim]).astype(np.float32)  # max + 1
+        words_feat = np.zeros([bsz, max(words_len), word_dim]).astype(np.float32)  # max + 1
         words_id = np.zeros([bsz, max(words_len)]).astype(np.int64)
         weights = np.zeros([bsz, max(words_len)]).astype(np.float32)
         for i, sample in enumerate(samples):
@@ -139,7 +141,7 @@ def build_collate_data(max_num_frames, max_num_words, frame_dim, word_dim):
                 'frames_len': torch.from_numpy(np.asarray(frames_len)),
                 'words_feat': torch.from_numpy(words_feat),
                 'words_id': torch.from_numpy(words_id),
-                'weights': torch.from_numpy(weights),
+                'words_weight': torch.from_numpy(weights),
                 'words_len': torch.from_numpy(np.asarray(words_len)),
             }
         })

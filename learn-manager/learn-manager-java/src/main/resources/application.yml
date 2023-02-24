@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    username: root
+    password: 123456
+    url: jdbc:mysql://${MYSQL_IP:192.168.80.128}:3306/db_manager
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    type: com.alibaba.druid.pool.DruidDataSource
+  main:
+    banner-mode: off
+server:
+  port: 8000
+mybatis-plus:
+  global-config:
+    db-config:
+      table-prefix: tb_

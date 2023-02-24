@@ -3,7 +3,7 @@ import pickle
 from torch.utils.data import DataLoader
 import cpl.dataset as da
 import cpl.model as model
-from cpl.utils.cuda_utils import move_to_cuda
+from cpl.utils.gpu_utils import move_to_cuda
 
 
 class MainRunner(object):
@@ -17,6 +17,8 @@ class MainRunner(object):
         self.global_configs['model']['config']['prediction'][
             'vocab_size'] = self.train_set.vocab_size  # 高频词数量8000+1（未知），之后的语义推断从中选一个
         self.global_configs['model']['config']['prediction']['max_epoch'] = self.global_configs['train']['max_epoch']
+        self.global_configs['model']['config']['mapping']['frame_dim'] = self.global_configs['dataset']['frame_dim']
+        self.global_configs['model']['config']['mapping']['word_dim'] = self.global_configs['dataset']['word_dim']
         self._build_model()
 
     def _build_dataset(self):
@@ -40,7 +42,10 @@ class MainRunner(object):
         logging.debug('train: {} samples, test: {} samples'.format(len(self.train_set), len(self.test_set)))
         batch_size = self.global_configs['train']['batch_size']
 
-        # TODO 只有训练才需要？
+        # 由于num_workers数值如果大于0，则就会开辟子进程加载数据，之前设置的seed只针对主进程，子进程如果没有设置随机种子，则就会导致每次数据加载方式变化
+        # 所以为了保证重现实验，则也为每个子进程设置随机种子
+        # https://www.cvmart.net/community/detail/5491
+        # 注：num_workers等于几，该方法被调用几次
         def worker_init_fn(worker_id):
             def set_seed(seed):
                 import random
@@ -98,6 +103,10 @@ class MainRunner(object):
         for bid, batch in enumerate(self.train_loader, 1):
             # self.optimizer.zero_grad()  # 清空一轮梯度信息
             net_input = move_to_cuda(batch['net_input'])
+
+            # 前向传播
+            print(net_input)
+            self.model(epoch=epoch, **net_input)
 
     def _save_model(self, epoch):
         pass

@@ -5,7 +5,7 @@ from cpl.dataset.base import BaseDataset, build_collate_data
 
 class ActivityNet(BaseDataset):
     def _load_frame_features(self, vid):
-        with h5py.File(self.args['feature_path'], 'r') as fr:
+        with h5py.File(self.configs['feature_path'], 'r') as fr:
             return np.asarray(fr[vid]['c3d_features']).astype(np.float32)
 
     def __init__(self, data_path, vocab, configs):

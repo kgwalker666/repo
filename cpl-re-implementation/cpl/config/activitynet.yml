@@ -14,6 +14,8 @@ dataset:
   vocab_path: data/activitynet/glove.pkl
   # 高频词前k个，其他的词都算是未知的词
   vocab_size: 8000
+  # 视频特征文件未知
+  feature_path: data/activitynet/sub_activitynet_v1-3.c3d.hdf5
   # 训练集
   train_data: data/activitynet/train_data.json
   # 测试集
@@ -33,12 +35,15 @@ model:
   config:
     # [映射层]视频和文本映射到同一空间后，向量的维度
     mapping:
+      # 统一空间维度
       hidden_size: 256
+      # dropout
+      dropout: 0.1
     # [交互层] transformer部分的超参数
     interaction: xx
     # [预测层]
     prediction:
-      "num_props": 8
+      num_props: 8
     # [工具层]
     utils:
       pass

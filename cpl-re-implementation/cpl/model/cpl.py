@@ -12,18 +12,19 @@ class CPL(nn.Module):
         # 工具
         # self.word_pos_encoder = SinusoidalPositionalEmbedding(configs['hidden_size'])
 
-        # # 映射层
-        # self.mapping = Mapping(configs['mapping'])
-        #
+        # 映射层
+        self.mapping = Mapping(configs['mapping'])
+
         # # 交互层
         # self.trans = DualTransformer(configs['interaction'])
         #
         # # 预测层
         # self.prediction = Prediction(configs['prediction'])
 
-    def forward(self, frames_feat, frames_len, words_feat, words_len, words_weight, epoch):
+    def forward(self, frames_feat, frames_len, words_feat, words_len, words_weight, words_id, epoch):
         """
         前向传播获取网络执行结果
+        :param words_id: 每一个单词对应一个idx
         :param frames_feat: 视频特征
         :param frames_len: 视频有效特征长度
         :param words_feat: 文本特征
@@ -32,4 +33,4 @@ class CPL(nn.Module):
         :param epoch: 当前的epoch次数
         :return: 模型执行结果
         """
-        pass
+        frames_feat, frames_mask, words_feat, words_mask = self.mapping(frames_feat, frames_len, words_feat, words_len)
