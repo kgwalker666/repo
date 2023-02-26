@@ -3,10 +3,17 @@ spring:
     type: com.alibaba.druid.pool.DruidDataSource
     username: root
     password: 123456
-    url: jdbc:mysql://192.168.10.100:3306/db_test # serverTimezone=Asia/Shanghai
+    url: jdbc:mysql://192.168.10.100:3306/db_test
     driver-class-name: com.mysql.cj.jdbc.Driver
+  main:
+    banner-mode: off
 mybatis-plus:
   global-config:
     db-config:
       # 表统一前缀
       table-prefix: tb_
+    banner: off
+logging:
+  level:
+    # 配置日志级别，方便查看sql执行的语句
+    com.kgwalker.syt: debug

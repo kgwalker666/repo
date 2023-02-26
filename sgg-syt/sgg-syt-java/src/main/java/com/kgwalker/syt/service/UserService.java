@@ -2,6 +2,7 @@ package com.kgwalker.syt.service;
 
 import com.kgwalker.syt.entity.User;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.stereotype.Service;
 
 /**
  * 用户表(User)表服务接口
