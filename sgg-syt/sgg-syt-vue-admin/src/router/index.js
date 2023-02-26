@@ -99,6 +99,16 @@ export const constantRoutes = [
         component: () => import('@/views/setting/list/index'),
         // 子路由展示的名字和图标
         meta: { title: '医院设置列表', icon: 'table' }
+      },
+      {
+        // 子路由路径
+        path: 'add',
+        // 子路由名字
+        name: 'HospitalSettingAdd',
+        // 子路由展示的组件【这个需要我们自己编写】
+        component: () => import('@/views/setting/add/index'),
+        // 子路由展示的名字和图标
+        meta: { title: '医院设置添加', icon: 'table' }
       }
     ]
   },
