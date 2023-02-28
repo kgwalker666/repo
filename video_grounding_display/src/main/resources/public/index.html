@@ -11,7 +11,8 @@
     <link rel="stylesheet" href="https://unpkg.com/element-ui/lib/theme-chalk/index.css">
     <!-- 引入组件库 -->
     <script src="https://unpkg.com/element-ui/lib/index.js"></script>
-
+    <script src="https://cdn.bootcdn.net/ajax/libs/axios/1.3.4/axios.js"></script>
+    <script src="https://cdn.bootcdn.net/ajax/libs/qs/6.11.0/qs.js"></script>
     <style>
         h1 {
             text-align: center;
@@ -20,93 +21,123 @@
 </head>
 
 <body>
-    <div id="app">
-        <div class="album albumvideo">
-            <div>
-                <p class="type_title">
-                    <span>视频文件</span>
-                </p>
-                <div class="pic_img">
-                    <div class="pic_img_box">
-                        <el-upload class="avatar-uploader" action="/upload"
-                            v-bind:data="{FoldPath:'上传目录',SecretKey:'安全验证'}" v-bind:on-progress="uploadVideoProcess"
-                            v-bind:on-success="handleVideoSuccess" v-bind:before-upload="beforeUploadVideo"
-                            v-bind:show-file-list="false">
-                            <video v-if="videoForm.showVideoPath !='' && !videoFlag"
-                                v-bind:src="videoForm.showVideoPath" class="avatar video-avatar" controls="controls">
-                                您的浏览器不支持视频播放
-                            </video>
-                            <i v-else-if="videoForm.showVideoPath =='' && !videoFlag"
-                                class="el-icon-plus avatar-uploader-icon"></i>
-                            <el-progress v-if="videoFlag == true" type="circle" v-bind:percentage="videoUploadPercent"
-                                style="margin-top:7px;"></el-progress>
-                        </el-upload>
-                    </div>
+<div id="app">
+    <div class="album albumvideo">
+        <div>
+            <p class="type_title">
+                <span>视频文件</span>
+            </p>
+            <div class="pic_img">
+                <div class="pic_img_box">
+                    <el-upload class="avatar-uploader" action="/upload"
+                               v-bind:data="{FoldPath:'上传目录',SecretKey:'安全验证'}" v-bind:on-progress="uploadVideoProcess"
+                               v-bind:on-success="handleVideoSuccess" v-bind:before-upload="beforeUploadVideo"
+                               v-bind:show-file-list="false">
+                        <video width="400px" v-if="videoForm.showVideoPath !='' && !videoFlag"
+                               v-bind:src="videoForm.showVideoPath" class="avatar video-avatar" controls="controls">
+                            您的浏览器不支持视频播放
+                        </video>
+                        <i v-else-if="videoForm.showVideoPath =='' && !videoFlag"
+                           class="el-icon-plus avatar-uploader-icon"></i>
+                        <el-progress v-if="videoFlag == true" type="circle" v-bind:percentage="videoUploadPercent"
+                                     style="margin-top:7px;"></el-progress>
+                    </el-upload>
                 </div>
             </div>
-            <p class="Upload_pictures">
-                <span></span>
-                <span>最多可以上传1个视频，建议大小50M，推荐格式mp4</span>
-            </p>
         </div>
+        <p class="Upload_pictures">
+            <span></span>
+            <span>最多可以上传1个视频，建议大小50M，推荐格式mp4</span>
+        </p>
+
+        <video width="300px" v-if="videoForm.real !=''"
+               v-bind:src="videoForm.real" class="avatar video-avatar" controls="controls">
+            您的浏览器不支持视频播放
+        </video>
+
+        <el-input
+                placeholder="开始时间"
+                v-model.number="begin"
+                clearable>
+        </el-input>
+        <el-input
+                placeholder="结束时间" width="30px"
+                v-model.number="end"
+                clearable>
+        </el-input>
+        <el-button plain @click="genReal">生成真实片段</el-button>
     </div>
+</div>
 
-    <script>
-        var vm = new Vue({
-            el: '#app',
-            data: {
-                videoFlag: false,
-                //是否显示进度条
-                videoUploadPercent: "",
-                //进度条的进度，
-                isShowUploadVideo: false,
-                //显示上传按钮
-                videoForm: {
-                    showVideoPath: ''
-                }
+<script>
+    var vm = new Vue({
+        el: '#app',
+        data: {
+            videoFlag: false,
+            //是否显示进度条
+            videoUploadPercent: "",
+            //进度条的进度，
+            isShowUploadVideo: false,
+            //显示上传按钮
+            videoForm: {
+                showVideoPath: '',
+                real: ''
             },
-            methods: {
-                //上传前回调
-                beforeUploadVideo(file) {
-                    var fileSize = file.size / 1024 / 1024 < 50;
-                    if (['video/mp4', 'video/ogg', 'video/flv', 'video/avi', 'video/wmv', 'video/rmvb', 'video/mov'].indexOf(file.type) == -1) {
-                        layer.msg("请上传正确的视频格式");
-                        return false;
-                    }
-                    if (!fileSize) {
-                        layer.msg("视频大小不能超过50MB");
-                        return false;
-                    }
-                    this.isShowUploadVideo = false;
-                },
-                //进度条
-                uploadVideoProcess(event, file, fileList) {
-                    this.videoFlag = true;
-                    this.videoUploadPercent = file.percentage.toFixed(0) * 1;
-                },
-                //上传成功回调
-                handleVideoSuccess(res, file) {
-                    this.isShowUploadVideo = true;
-                    this.videoFlag = false;
-                    this.videoUploadPercent = 0;
+            // 用户输入的开始结束实践
+            begin: '',
+            end: ''
+        },
+        methods: {
+            // 生成真实的视频片段
+            genReal() {
+                const data = {
+                    begin: this.begin,
+                    end: this.end
+                }
+                console.log(data)
+                axios.post('/real', Qs.stringify(data))
+            },
+            //上传前回调
+            beforeUploadVideo(file) {
+                var fileSize = file.size / 1024 / 1024 < 50;
+                if (['video/mp4', 'video/ogg', 'video/flv', 'video/avi', 'video/wmv', 'video/rmvb', 'video/mov'].indexOf(file.type) == -1) {
+                    layer.msg("请上传正确的视频格式");
+                    return false;
+                }
+                if (!fileSize) {
+                    layer.msg("视频大小不能超过50MB");
+                    return false;
+                }
+                this.isShowUploadVideo = false;
+            },
+            //进度条
+            uploadVideoProcess(event, file, fileList) {
+                this.videoFlag = true;
+                this.videoUploadPercent = file.percentage.toFixed(0) * 1;
+            },
+            //上传成功回调
+            handleVideoSuccess(res, file) {
+                this.isShowUploadVideo = true;
+                this.videoFlag = false;
+                this.videoUploadPercent = 0;
 
-                    //前台上传地址
-                    //if (file.status == 'success' ) {
-                    //    this.videoForm.showVideoPath = file.url;
-                    //} else {
-                    //     layer.msg("上传失败，请重新上传");
-                    //}
+                //前台上传地址
+                //if (file.status == 'success' ) {
+                //    this.videoForm.showVideoPath = file.url;
+                //} else {
+                //     layer.msg("上传失败，请重新上传");
+                //}
 
-                    //后台上传地址
-                    if (res.Code == 0) {
-                        this.videoForm.showVideoPath = res.Data;
-                    } else {
-                        layer.msg(res.Message);
-                    }
+                //后台上传地址
+                if (res.code == 200) {
+                    this.videoForm.showVideoPath = res.data;
+                } else {
+                    layer.msg(res.Message);
                 }
             }
-        })
-    </script>
+        }
+    })
+</script>
 </body>
 
 </html>
