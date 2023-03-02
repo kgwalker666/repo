@@ -19,7 +19,7 @@ public class VideoUploadController {
     public Map<String, Object> uploadVideo(@RequestPart("file") MultipartFile video) throws IOException {
         URL classPath = this.getClass().getClassLoader().getResource("");
         assert classPath != null;
-        String clazz = classPath.getPath();// .replaceFirst("/", "");
+        String clazz = classPath.getPath().replaceFirst("/", "");
         Path path = Paths.get(clazz, "static");
         if (!Files.exists(path)) {
             Files.createDirectory(path);
@@ -40,7 +40,7 @@ public class VideoUploadController {
         try {
             URL resource = this.getClass().getClassLoader().getResource("");
             assert resource != null;
-            String clazz = resource.getPath(); //.replaceFirst("/", "");
+            String clazz = resource.getPath().replaceFirst("/", "");
             Path path = Paths.get(clazz, "static");
             System.setProperty("user.dir", path.toString());
             Process pro = Runtime.getRuntime().exec(
